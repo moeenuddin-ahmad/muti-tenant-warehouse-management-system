@@ -14,7 +14,6 @@ export class DatabaseService
   }
 
   async onModuleInit() {
-    
     console.log('Database pool connected.');
   }
 
