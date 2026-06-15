@@ -7,9 +7,11 @@ import { TenantsModule } from './tenants/tenants.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule, WarehousesModule],
+  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule, WarehousesModule, InventoryModule, ProductsModule],
   controllers: [AppController],
   providers: [AppService],
 })
