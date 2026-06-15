@@ -27,3 +27,16 @@ export function buildUpdateFields(dto: Record<string, any>, startIdx = 1) {
     nextIdx: idx,
   };
 }
+
+/**
+ * Formats a TypeScript enum into a string of single-quoted values for SQL ENUM types.
+ *
+ * @param enumObj The TypeScript enum object.
+ * @returns A comma-separated string of quoted enum values.
+ */
+export function formatEnumForSql(enumObj: object): string {
+  return Object.values(enumObj)
+    .filter((value) => typeof value === 'string')
+    .map((value) => `'${value}'`)
+    .join(', ');
+}
