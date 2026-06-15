@@ -49,13 +49,13 @@ export class TenantsService {
       throw new BadRequestException('No fields to update');
 
     values.push(id);
-    const query = `UPDATE tenants SET ${fieldsString} WHERE id = $${nextIdx} RETURNING *`;
+    const query = `UPDATE tenants SET ${fieldsString} WHERE id = $${nextIdx} RETURNING id`;
     const result = await this.databaseService.query(query, values);
 
     if (result.rows.length === 0) {
       throw new NotFoundException(`Tenant with ID ${id} not found`);
     }
-    return result.rows[0];
+    return { message: `Tenant with ID ${id} updated successfully` };
   }
 
   async remove(id: number) {

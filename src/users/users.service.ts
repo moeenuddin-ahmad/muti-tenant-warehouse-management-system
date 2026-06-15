@@ -51,13 +51,13 @@ export class UsersService {
     }
 
     values.push(id);
-    const query = `UPDATE users SET ${fieldsString} WHERE id = $${nextIdx} RETURNING *`;
+    const query = `UPDATE users SET ${fieldsString} WHERE id = $${nextIdx} RETURNING id`;
     const result = await this.databaseService.query(query, values);
 
     if (result.rows.length === 0) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return result.rows[0];
+    return { message: `User with ID ${id} updated successfully` };
   }
 
   async remove(id: number) {
