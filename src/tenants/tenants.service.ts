@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
 import { DatabaseService } from 'src/database/database.service';
+import { buildUpdateFields } from 'src/common/utils/sql-builder.util';
 
 @Injectable()
 export class TenantsService {
@@ -9,39 +14,44 @@ export class TenantsService {
     const { name, email, phone, status } = createTenantDto;
     const query = `
     INSERT INTO tenants (name, email, phone, status)
-    VALUES('${name}', '${email}', '${phone}', '${status ? status : 'default'}')
+    VALUES($1, $2, $3, $4)
     RETURNING *;
     `;
-    const result = await this.databaseService.query(query);
+    const result = await this.databaseService.query(query, [
+      name,
+      email,
+      phone,
+      status || 'default',
+    ]);
     return result.rows[0];
   }
 
   async findAll() {
-    const query = `SELECT * FROM tenants`;
+    const query = `SELECT id, name, email, phone, status, created_at FROM tenants ORDER BY created_at DESC`;
     const result = await this.databaseService.query(query);
     return result.rows;
   }
 
   async findOne(id: number) {
-    const query = `SELECT * FROM tenants WHERE id = ${id}`;
-    const result = await this.databaseService.query(query);
+    const query = `SELECT id, name, email, phone, status, created_at FROM tenants WHERE id = $1`;
+    const result = await this.databaseService.query(query, [id]);
     if (result.rows.length === 0) {
       throw new NotFoundException(`Tenant with ID ${id} not found`);
     }
-    return result.rows;
+    return result.rows[0];
   }
 
   async update(id: number, updateTenantDto: UpdateTenantDto) {
-    const { name, email, phone, status } = updateTenantDto;
-    let updates: string[] = [];
+    const { fieldsString, values, nextIdx } =
+      buildUpdateFields(updateTenantDto);
 
-    if (name) updates.push(`name = '${name}'`);
-    if (email) updates.push(`email = '${email}'`);
-    if (phone) updates.push(`phone = '${phone}'`);
-    if (status) updates.push(`status = '${status}'`);
+    if (values.length === 0)
+      throw new BadRequestException('No fields to update');
 
-    const query = `UPDATE tenants SET ${updates.join(', ')} WHERE id = ${id} RETURNING *`;
-    const result = await this.databaseService.query(query);
+    values.push(id);
+    const query = `UPDATE tenants SET ${fieldsString} WHERE id = $${nextIdx} RETURNING *`;
+    const result = await this.databaseService.query(query, values);
+
     if (result.rows.length === 0) {
       throw new NotFoundException(`Tenant with ID ${id} not found`);
     }
@@ -49,11 +59,11 @@ export class TenantsService {
   }
 
   async remove(id: number) {
-    const query = `DELETE FROM tenants WHERE id = ${id} RETURNING *`;
-    const result = await this.databaseService.query(query);
+    const query = `DELETE FROM tenants WHERE id = $1 RETURNING id`;
+    const result = await this.databaseService.query(query, [id]);
     if (result.rows.length === 0) {
       throw new NotFoundException(`Tenant with ID ${id} not found`);
     }
-    return `This action removes a #${id} tenant`;
+    return { message: `Tenant with ID ${id} removed successfully` };
   }
 }
