@@ -6,9 +6,10 @@ import { ConfigModule } from '@nestjs/config';
 import { TenantsModule } from './tenants/tenants.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
+import { WarehousesModule } from './warehouses/warehouses.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule],
+  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule, WarehousesModule],
   controllers: [AppController],
   providers: [AppService],
 })

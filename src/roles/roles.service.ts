@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/roles.dto';
 import { DatabaseService } from '../database/database.service';
+import { paginate } from '../common/utils/pagination.util';
 
 @Injectable()
 export class RolesService {
@@ -15,8 +16,7 @@ export class RolesService {
     };
   }
 
-  async findAll() {
-    const result = await this.db.query('SELECT * FROM roles ORDER BY id ASC');
-    return result.rows;
+  async findAll(query: any) {
+    return await paginate(this.db, 'roles', query, ['title']);
   }
 }

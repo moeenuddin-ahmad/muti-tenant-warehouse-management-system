@@ -17,16 +17,15 @@ export class UsersService {
     const query = `
       INSERT INTO users (tenant_id, name, email, phone, status)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
     `;
-    const result = await this.databaseService.query(query, [
+    await this.databaseService.query(query, [
       tenantId,
       name,
       email,
       phone,
       status || 'active',
     ]);
-    return result.rows[0];
+    return { message: 'User created successfully' };
   }
 
   async findAll(query: any) {
