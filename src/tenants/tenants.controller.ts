@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
@@ -19,8 +20,8 @@ export class TenantsController {
   }
 
   @Get()
-  findAll() {
-    return this.tenantsService.findAll();
+  findAll(@Query() query: any) {
+    return this.tenantsService.findAll(query);
   }
 
   @Get(':id')

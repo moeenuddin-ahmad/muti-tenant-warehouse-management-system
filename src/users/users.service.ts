@@ -6,6 +6,7 @@ import {
 import { CreateUserDto, UpdateUserDto } from './dto/users.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { buildUpdateFields } from 'src/common/utils/sql-builder.util';
+import { paginate } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class UsersService {
@@ -28,10 +29,12 @@ export class UsersService {
     return result.rows[0];
   }
 
-  async findAll() {
-    const query = `SELECT * FROM users ORDER BY created_at DESC`;
-    const result = await this.databaseService.query(query);
-    return result.rows;
+  async findAll(query: any) {
+    return paginate(this.databaseService, 'users', query, [
+      'name',
+      'email',
+      'phone',
+    ]);
   }
 
   async findOne(id: number) {

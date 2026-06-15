@@ -6,6 +6,7 @@ import {
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { buildUpdateFields } from 'src/common/utils/sql-builder.util';
+import { paginate } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class TenantsService {
@@ -26,10 +27,12 @@ export class TenantsService {
     return result.rows[0];
   }
 
-  async findAll() {
-    const query = `SELECT id, name, email, phone, status, created_at FROM tenants ORDER BY created_at DESC`;
-    const result = await this.databaseService.query(query);
-    return result.rows;
+  async findAll(query: any) {
+    return paginate(this.databaseService, 'tenants', query, [
+      'name',
+      'email',
+      'phone',
+    ]);
   }
 
   async findOne(id: number) {
