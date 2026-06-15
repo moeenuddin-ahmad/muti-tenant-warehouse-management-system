@@ -10,11 +10,15 @@ export const shorthands = undefined;
  */
 export const up = (pgm) => {
   pgm.sql(`
-    ALTER TABLE tenants
-    ALTER COLUMN phone TYPE VARCHAR(11),
-    ALTER COLUMN phone SET NOT NULL,
-    ADD CONSTRAINT phone_check CHECK (LENGTH(phone) = 11);
-  `);
+        CREATE TABLE IF NOT EXISTS roles(
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(50) UNIQUE NOT NULL,
+        created_at DATE DEFAULT NOW()
+        );    
+
+        INSERT INTO roles (title) VALUES ('admin'), ('manager'), ('staff');
+
+    `);
 };
 
 /**
@@ -24,8 +28,6 @@ export const up = (pgm) => {
  */
 export const down = (pgm) => {
   pgm.sql(`
-    ALTER TABLE tenants 
-    DROP CONSTRAINT IF EXISTS phone_check,
-    ALTER COLUMN phone TYPE INT USING phone::INTEGER;
-  `);
+        DROP TABLE IF EXISTS roles;
+    `);
 };

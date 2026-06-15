@@ -14,8 +14,8 @@ export const up = (pgm) => {
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       email VARCHAR(255) UNIQUE NOT NULL,
-      phone INT UNIQUE NOT NULL,
-      status VARCHAR(255) NOT NULL DEFAULT 'active',
+      phone VARCHAR(11) UNIQUE NOT NULL CHECK (LENGTH(phone) = 11),
+      status VARCHAR(20) NOT NULL DEFAULT 'active',
       created_at DATE DEFAULT CURRENT_DATE
     )    
     `);
