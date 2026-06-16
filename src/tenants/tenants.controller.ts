@@ -7,9 +7,18 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/roles.enum';
+
+@UseGuards(AuthGuard, RolesGuard)
+@Roles([Role.Admin])
 @Controller('tenants')
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}

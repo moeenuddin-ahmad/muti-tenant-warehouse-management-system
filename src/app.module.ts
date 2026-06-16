@@ -10,9 +10,21 @@ import { WarehousesModule } from './warehouses/warehouses.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ProductsModule } from './products/products.module';
 import { AuthModule } from './users/auth/auth.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule, WarehousesModule, InventoryModule, ProductsModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    CommonModule,
+    TenantsModule,
+    UsersModule,
+    RolesModule,
+    WarehousesModule,
+    InventoryModule,
+    ProductsModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
