@@ -13,6 +13,7 @@ import { AuthModule } from './users/auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { CustomersModule } from './customers/customers.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
     AuthModule,
     CustomersModule,
     SuppliersModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
