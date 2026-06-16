@@ -31,6 +31,10 @@ export class CreateUserDto {
   @IsEnum(UserStatus)
   @IsOptional()
   status: UserStatus = UserStatus.active;
+
+  @IsString()
+  @IsNotEmpty()
+  role: string;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

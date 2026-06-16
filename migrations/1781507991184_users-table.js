@@ -15,9 +15,11 @@ export const up = (pgm) => {
             tenant_id INT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
             name VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
             phone VARCHAR(11) UNIQUE NOT NULL CHECK (LENGTH(phone) = 11),
             status VARCHAR(20) NOT NULL DEFAULT 'active',
             role VARCHAR(20) NOT NULL REFERENCES roles(title) ON DELETE CASCADE,
+            refresh_token VARCHAR(255),
             created_at DATE DEFAULT CURRENT_DATE
         )
     `);

@@ -9,9 +9,10 @@ import { RolesModule } from './roles/roles.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ProductsModule } from './products/products.module';
+import { AuthModule } from './users/auth/auth.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule, WarehousesModule, InventoryModule, ProductsModule],
+  imports: [ConfigModule.forRoot(), DatabaseModule, TenantsModule, UsersModule, RolesModule, WarehousesModule, InventoryModule, ProductsModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
