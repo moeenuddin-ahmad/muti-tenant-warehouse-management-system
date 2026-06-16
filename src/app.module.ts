@@ -11,6 +11,8 @@ import { InventoryModule } from './inventory/inventory.module';
 import { ProductsModule } from './products/products.module';
 import { AuthModule } from './users/auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { CustomersModule } from './customers/customers.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { CommonModule } from './common/common.module';
     InventoryModule,
     ProductsModule,
     AuthModule,
+    CustomersModule,
+    SuppliersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
