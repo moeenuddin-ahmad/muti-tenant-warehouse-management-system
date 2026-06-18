@@ -15,7 +15,7 @@ export const up = (pgm) => {
             tenant_id INT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
             warehouse_id INT NOT NULL REFERENCES warehouses(id) ON DELETE CASCADE,
             product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-            qty INT NOT NULL DEFAULT 0,
+            qty INT NOT NULL DEFAULT 1,
             created_at DATE DEFAULT CURRENT_DATE,
             UNIQUE(tenant_id, warehouse_id, product_id)
         )
