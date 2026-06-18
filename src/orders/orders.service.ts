@@ -1,18 +1,43 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateOrderDto, UpdateOrderDto } from './dto/orders.dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  UpdateOrderStatusDto,
+} from './dto/orders.dto';
 import { DatabaseService } from '../database/database.service';
 import { paginate } from '../common/utils/pagination.util';
+import { buildUpdateFields } from '../common/utils/sql-builder.util';
+import { CustomersService } from '../customers/customers.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly db: DatabaseService) {}
+  constructor(
+    private readonly db: DatabaseService,
+    private readonly customersService: CustomersService,
+  ) {}
 
-  async create(createOrderDto: CreateOrderDto) {
-    const { tenant_id, customer_id, status, items } = createOrderDto;
+  async create(tenant_id: number, createOrderDto: CreateOrderDto) {
+    const { customer_id, status, items } = createOrderDto;
+
+    // Validate customer belongs to this tenant
+    await this.customersService.checkExists(tenant_id, customer_id);
+
+    // Ensure no pending order already exists for this customer in this tenant
+    const existingPending = await this.db.query(
+      `SELECT id FROM orders WHERE tenant_id = $1 AND customer_id = $2 AND status = 'pending'`,
+      [tenant_id, customer_id],
+    );
+    if (existingPending.rows.length > 0) {
+      throw new ConflictException(
+        'A pending order already exists for this customer. Complete or cancel it before creating a new one.',
+      );
+    }
 
     // Start Transaction
     const client = await this.db.connect();
@@ -52,10 +77,10 @@ export class OrdersService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(tenant_id: number, id: number) {
     const orderResult = await this.db.query(
-      'SELECT o.*, c.name as customer_name FROM orders o JOIN customers c ON o.customer_id = c.id WHERE o.id = $1',
-      [id],
+      'SELECT o.*, c.name as customer_name FROM orders o JOIN customers c ON o.customer_id = c.id WHERE o.id = $1 AND o.tenant_id = $2',
+      [id, tenant_id],
     );
 
     if (orderResult.rows.length === 0) {
@@ -73,12 +98,16 @@ export class OrdersService {
     };
   }
 
-  async update(id: number, updateOrderDto: UpdateOrderDto) {
-    const { status } = updateOrderDto;
-    const result = await this.db.query(
-      'UPDATE orders SET status = COALESCE($1, status) WHERE id = $2 RETURNING id',
-      [status, id],
-    );
+  async update(tenant_id: number, id: number, updateOrderDto: UpdateOrderDto) {
+    const { fieldsString, values, nextIdx } = buildUpdateFields(updateOrderDto);
+
+    if (values.length === 0) {
+      throw new BadRequestException('No fields to update');
+    }
+
+    values.push(id, tenant_id);
+    const query = `UPDATE orders SET ${fieldsString} WHERE id = $${nextIdx} AND tenant_id = $${nextIdx + 1} RETURNING id`;
+    const result = await this.db.query(query, values);
 
     if (result.rows.length === 0) {
       throw new NotFoundException(`Order with ID ${id} not found`);
@@ -87,10 +116,23 @@ export class OrdersService {
     return { message: 'Order updated successfully' };
   }
 
-  async remove(id: number) {
+  async updateStatus(tenant_id: number, id: number, dto: UpdateOrderStatusDto) {
     const result = await this.db.query(
-      'DELETE FROM orders WHERE id = $1 RETURNING id',
-      [id],
+      'UPDATE orders SET status = $1 WHERE id = $2 AND tenant_id = $3 RETURNING id',
+      [dto.status, id, tenant_id],
+    );
+
+    if (result.rows.length === 0) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    return { message: `Order status updated to '${dto.status}'` };
+  }
+
+  async remove(tenant_id: number, id: number) {
+    const result = await this.db.query(
+      'DELETE FROM orders WHERE id = $1 AND tenant_id = $2 RETURNING id',
+      [id, tenant_id],
     );
     if (result.rows.length === 0) {
       throw new NotFoundException(`Order with ID ${id} not found`);

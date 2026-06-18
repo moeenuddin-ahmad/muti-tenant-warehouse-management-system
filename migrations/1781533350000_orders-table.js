@@ -25,6 +25,13 @@ export const up = (pgm) => {
             created_at DATE DEFAULT CURRENT_DATE
         )
     `);
+
+  // Partial unique index: a customer can only have ONE pending order per tenant
+  pgm.sql(`
+        CREATE UNIQUE INDEX orders_one_pending_per_customer
+        ON orders (tenant_id, customer_id)
+        WHERE status = 'pending'
+    `);
 };
 
 /**
@@ -33,6 +40,7 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
+  pgm.sql(`DROP INDEX IF EXISTS orders_one_pending_per_customer`);
   pgm.sql(`DROP TABLE IF EXISTS orders`);
   pgm.sql(`DROP TYPE IF EXISTS order_status`);
 };

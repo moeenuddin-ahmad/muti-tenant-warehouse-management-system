@@ -42,4 +42,10 @@ export class CreateOrderDto {
   items: CreateOrderItemDto[];
 }
 
+export class UpdateOrderStatusDto {
+  @IsEnum(OrderStatus)
+  @IsNotEmpty()
+  status: OrderStatus;
+}
+
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {}

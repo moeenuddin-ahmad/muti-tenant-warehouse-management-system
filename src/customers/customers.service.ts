@@ -69,4 +69,16 @@ export class CustomersService {
     }
     return { message: 'Customer deleted successfully' };
   }
+
+  async checkExists(tenant_id: number, id: number): Promise<void> {
+    const result = await this.db.query(
+      'SELECT id FROM customers WHERE id = $1 AND tenant_id = $2',
+      [id, tenant_id],
+    );
+    if (result.rows.length === 0) {
+      throw new NotFoundException(
+        `Customer with ID ${id} not found for this tenant`,
+      );
+    }
+  }
 }
