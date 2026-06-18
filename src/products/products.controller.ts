@@ -22,7 +22,7 @@ import type { RequestWithUser } from 'src/common/interfaces/request.interface';
 @UseGuards(AuthGuard, TenantGuard, RolesGuard)
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
   @Roles([Role.Admin, Role.Manager])

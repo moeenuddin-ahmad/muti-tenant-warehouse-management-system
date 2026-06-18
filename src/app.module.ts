@@ -17,7 +17,10 @@ import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true, envFilePath:
+        process.env.RUNNING_IN_DOCKER === 'true' ? '.env.prod' : '.env.local',
+    }),
     DatabaseModule,
     CommonModule,
     TenantsModule,
@@ -34,4 +37,4 @@ import { OrdersModule } from './orders/orders.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

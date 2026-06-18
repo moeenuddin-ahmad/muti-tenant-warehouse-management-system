@@ -19,7 +19,7 @@ export class AuthService {
     private readonly bcryptService: BcryptServices,
     private readonly mailService: MailServices,
     private readonly tenantsService: TenantsService,
-  ) {}
+  ) { }
 
   async register(registrationDto: RegistrationDto) {
     const {
@@ -108,7 +108,7 @@ export class AuthService {
   }
 
   async me(id: number) {
-    const query = `SELECT id, email, name FROM users WHERE id = $1`;
+    const query = `SELECT id, email, name, role FROM users WHERE id = $1`;
     const result = await this.databaseService.query(query, [id]);
     if (!result.rows.length) {
       throw new NotFoundException('User not found');

@@ -10,6 +10,7 @@ import { Role } from '../enum/roles.enum';
 export class TenantGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    console.log('TenantGuard request.user:', request.user);
     const user = request.user;
 
     if (!user) {
@@ -18,10 +19,10 @@ export class TenantGuard implements CanActivate {
 
     // 1. Extract tenant_id from request (Param, Query, or Body)
     const tenantId =
-      request.params.tenant_id ||
-      request.query.tenant_id ||
-      request.body.tenant_id ||
-      request.params.id; // Sometimes the tenant ID is the main ID of the resource (e.g. /tenants/:id)
+      request.params?.tenant_id ||
+      request.query?.tenant_id ||
+      request.body?.tenant_id ||
+      request.params?.id; // Sometimes the tenant ID is the main ID of the resource (e.g. /tenants/:id)
 
     // 2. Security Check: Tenant Isolation
     // If a tenant_id was provided in the request, it MUST match the user's tenant_id
