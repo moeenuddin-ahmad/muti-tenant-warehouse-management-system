@@ -1,98 +1,82 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Multi-Tenant Warehouse Management System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust, multi-tenant warehouse management backend built with **NestJS**, **PostgreSQL**, and **Redis**. The entire application is fully dockerized for seamless development and production deployments.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Tech Stack
+- **Framework**: NestJS (TypeScript)
+- **Database**: PostgreSQL 16
+- **Cache**: Redis 7
+- **Database Migrations**: node-pg-migrate
+- **Containerization**: Docker & Docker Compose
+- **Database Management**: pgAdmin 4
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Prerequisites
+- [Docker](https://www.docker.com/products/docker-desktop) and Docker Compose installed on your machine.
+- (Optional) [Node.js](https://nodejs.org/) v22+ if you wish to run the app locally without Docker.
 
-## Project setup
+---
 
-```bash
-$ npm install
-```
+## ⚙️ Getting Started (Docker)
 
-## Compile and run the project
+The absolute easiest way to run the application is using Docker. This will spin up the API, the Postgres database, the Redis cache, and pgAdmin all at once.
 
-```bash
-# development
-$ npm run start
+1. **Configure Environment Variables**
+   Ensure you have your `.env.prod` file set up in the root directory. 
+   *(Note: The `DATABASE_URL` for the API should use `postgres:5432` to connect internally).*
 
-# watch mode
-$ npm run start:dev
+2. **Build and Run the Containers**
+   Open your terminal and run:
+   ```bash
+   docker compose up --build -d
+   ```
 
-# production mode
-$ npm run start:prod
-```
+3. **Automatic Migrations**
+   You do **not** need to create tables manually! 
+   When the API container starts, it will automatically run `npm run migrate:up` to create all the necessary tables (e.g., `tenants`, `users`) before starting the NestJS server.
 
-## Run tests
+4. **Access the Application**
+   - **API Server**: `http://localhost:8000` (Mapped to container port 3000)
+   - **Postgres Database**: `localhost:5433` (Mapped to container port 5432)
+   - **Redis**: `localhost:6380` (Mapped to container port 6379)
 
-```bash
-# unit tests
-$ npm run test
+---
 
-# e2e tests
-$ npm run test:e2e
+## 🐘 Managing the Database (pgAdmin)
 
-# test coverage
-$ npm run test:cov
-```
+pgAdmin is included in the Docker setup so you can visually manage your database.
 
-## Deployment
+1. Go to **`http://localhost:5050`** in your browser.
+2. Log in with the default credentials:
+   - **Email**: `admin@admin.com`
+   - **Password**: `admin`
+3. Click **Add New Server** and enter the following in the Connection tab:
+   - **Host name/address**: `postgres` *(Do not use localhost)*
+   - **Port**: `5432`
+   - **Maintenance database**: `multi-tenant-warehouse`
+   - **Username**: `moeen` *(or your POSTGRES_USER)*
+   - **Password**: `hasan23398` *(or your POSTGRES_PASSWORD)*
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 📜 Available Scripts
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+If you are developing locally without Docker, you can use these npm scripts:
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- `npm run build` - Compiles the TypeScript code into the `/dist` folder.
+- `npm run start:dev` - Starts the NestJS development server with hot-reloading.
+- `npm run migrate:create <name>` - Creates a new empty migration file.
+- `npm run migrate:up` - Applies all pending database migrations.
+- `npm run migrate:down` - Rolls back the last database migration.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## 💡 Notes on Docker Port Mapping
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+To prevent conflicts with any databases you might already have running on your computer, the Docker Compose file uses strict `HOST:CONTAINER` port mappings:
+- Postgres is exposed on your computer at `5433`, but runs internally on `5432`.
+- Redis is exposed on your computer at `6380`, but runs internally on `6379`.
+- The API is exposed on your computer at `8000`, but runs internally on `3000`.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+When writing code inside the API, always connect to the **internal** ports (`postgres:5432` and `redis:6379`).

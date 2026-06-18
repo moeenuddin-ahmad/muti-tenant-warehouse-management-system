@@ -6,13 +6,13 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN apk add --no-cache python3 make g++ \
-    && npm ci
+    && npm install --legacy-peer-deps
 
 COPY . .
 
 RUN npm run build
 
-RUN npm prune --omit=dev
+# RUN npm prune --omit=dev
 
 
 # Stage 2: Production
@@ -31,5 +31,5 @@ ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "sh", "-c", "npm run migrate:up && npm run start:prod" ]
 
