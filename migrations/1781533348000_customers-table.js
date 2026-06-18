@@ -14,7 +14,7 @@ export const up = (pgm) => {
             id SERIAL PRIMARY KEY,
             tenant_id INT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
             name VARCHAR(255) NOT NULL,
-            phone BIGINT NOT NULL,
+            phone VARCHAR(11) NOT NULL UNIQUE CHECK (LENGTH(phone) = 11'),
             created_at DATE DEFAULT CURRENT_DATE,
             UNIQUE(tenant_id, phone)
         )

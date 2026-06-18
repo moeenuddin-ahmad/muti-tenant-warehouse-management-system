@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
@@ -16,6 +17,7 @@ import { TenantGuard } from 'src/common/guards/tenant.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
+import type { RequestWithUser } from 'src/common/interfaces/request.interface';
 
 @UseGuards(AuthGuard, TenantGuard, RolesGuard)
 @Controller('customers')
@@ -24,34 +26,42 @@ export class CustomersController {
 
   @Post()
   @Roles([Role.Admin, Role.Manager])
-  create(@Body() createCustomerDto: CreateCustomerDto) {
-    return this.customersService.create(createCustomerDto);
+  create(
+    @Req() req: RequestWithUser,
+    @Body() createCustomerDto: CreateCustomerDto,
+  ) {
+    return this.customersService.create(req.user.tenant_id, createCustomerDto);
   }
 
   @Get()
   @Roles([Role.Admin, Role.Manager, Role.Staff])
-  findAll(@Query('tenant_id') tenant_id: string, @Query() query: any) {
-    return this.customersService.findAll(+tenant_id, query);
+  findAll(@Req() req: RequestWithUser, @Query() query: any) {
+    return this.customersService.findAll(req.user.tenant_id, query);
   }
 
   @Get(':id')
   @Roles([Role.Admin, Role.Manager, Role.Staff])
-  findOne(@Param('id') id: string) {
-    return this.customersService.findOne(+id);
+  findOne(@Req() req: RequestWithUser, @Param('id') id: string) {
+    return this.customersService.findOne(req.user.tenant_id, +id);
   }
 
   @Patch(':id')
   @Roles([Role.Admin, Role.Manager])
   update(
+    @Req() req: RequestWithUser,
     @Param('id') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
   ) {
-    return this.customersService.update(+id, updateCustomerDto);
+    return this.customersService.update(
+      req.user.tenant_id,
+      +id,
+      updateCustomerDto,
+    );
   }
 
   @Delete(':id')
   @Roles([Role.Admin])
-  remove(@Param('id') id: string) {
-    return this.customersService.remove(+id);
+  remove(@Req() req: RequestWithUser, @Param('id') id: string) {
+    return this.customersService.remove(req.user.tenant_id, +id);
   }
 }
