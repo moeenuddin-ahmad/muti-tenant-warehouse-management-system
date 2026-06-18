@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { TenantsModule } from 'src/tenants/tenants.module';
 
 @Module({
-  imports: [],
+  imports: [TenantsModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

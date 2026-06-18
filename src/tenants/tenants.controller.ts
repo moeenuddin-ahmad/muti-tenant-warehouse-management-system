@@ -7,18 +7,12 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
-@UseGuards(AuthGuard, RolesGuard)
-@Roles([Role.Admin])
 @Controller('tenants')
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
@@ -29,21 +23,25 @@ export class TenantsController {
   }
 
   @Get()
+  @Auth(Role.Admin)
   findAll(@Query() query: any) {
     return this.tenantsService.findAll(query);
   }
 
   @Get(':id')
+  @Auth(Role.Admin, Role.Manager)
   findOne(@Param('id') id: string) {
     return this.tenantsService.findOne(+id);
   }
 
   @Patch(':id')
+  @Auth(Role.Admin)
   update(@Param('id') id: string, @Body() updateTenantDto: UpdateTenantDto) {
     return this.tenantsService.update(+id, updateTenantDto);
   }
 
   @Delete(':id')
+  @Auth(Role.Admin)
   remove(@Param('id') id: string) {
     return this.tenantsService.remove(+id);
   }

@@ -9,6 +9,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { JwtServices } from 'src/common/services/jwt.utls';
 import { BcryptServices } from 'src/common/services/bcrypt.utils';
 import { MailServices } from 'src/common/services/mail.utils';
+import { TenantsService } from 'src/tenants/tenants.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly jwtService: JwtServices,
     private readonly bcryptService: BcryptServices,
     private readonly mailService: MailServices,
+    private readonly tenantsService: TenantsService,
   ) {}
 
   async register(registrationDto: RegistrationDto) {
@@ -29,6 +31,9 @@ export class AuthService {
       password,
       role = 'staff',
     } = registrationDto;
+
+    // 0. Ensure tenant exists
+    await this.tenantsService.findOne(tenantId);
 
     // 1. Check if any user exists for this tenant
     const countQuery = `SELECT COUNT(*) FROM users WHERE tenant_id = $1`;
