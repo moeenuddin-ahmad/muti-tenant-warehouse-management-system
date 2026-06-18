@@ -1,18 +1,14 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateSupplierDto {
-  @IsNumber()
-  @IsNotEmpty()
-  tenant_id: number;
-
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  phone: number;
+  phone: string;
 
   @IsString()
   @IsNotEmpty()
