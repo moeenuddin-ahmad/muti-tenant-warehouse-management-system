@@ -1,13 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateInventoryDto, UpdateInventoryDto } from './dto/inventory.dto';
 import { DatabaseService } from '../database/database.service';
 import { paginate } from '../common/utils/pagination.util';
+import { buildUpdateFields } from '../common/utils/sql-builder.util';
+import { ProductsService } from '../products/products.service';
+import { WarehousesService } from '../warehouses/warehouses.service';
 
 @Injectable()
 export class InventoryService {
-  constructor(private readonly db: DatabaseService) {}
+  constructor(
+    private readonly db: DatabaseService,
+    private readonly productsService: ProductsService,
+    private readonly warehousesService: WarehousesService,
+  ) {}
 
   async create(tenant_id: number, createInventoryDto: CreateInventoryDto) {
+    // Validate that warehouse and product exist for this tenant
+    await Promise.all([
+      this.warehousesService.checkExists(
+        tenant_id,
+        createInventoryDto.warehouse_id,
+      ),
+      this.productsService.checkExists(
+        tenant_id,
+        createInventoryDto.product_id,
+      ),
+    ]);
+
     await this.db.query(
       'INSERT INTO inventory (tenant_id, warehouse_id, product_id, qty) VALUES ($1, $2, $3, $4)',
       [
@@ -44,15 +67,20 @@ export class InventoryService {
     id: number,
     updateInventoryDto: UpdateInventoryDto,
   ) {
-    const result = await this.db.query(
-      'UPDATE inventory SET qty = COALESCE($1, qty) WHERE id = $2 AND tenant_id = $3 RETURNING id',
-      [updateInventoryDto.qty, id, tenant_id],
-    );
+    const { fieldsString, values, nextIdx } =
+      buildUpdateFields(updateInventoryDto);
+
+    if (values.length === 0) {
+      throw new BadRequestException('No fields to update');
+    }
+
+    values.push(id, tenant_id);
+    const query = `UPDATE inventory SET ${fieldsString} WHERE id = $${nextIdx} AND tenant_id = $${nextIdx + 1} RETURNING id`;
+    const result = await this.db.query(query, values);
 
     if (result.rows.length === 0) {
       throw new NotFoundException(`Inventory record not found`);
     }
-
     return { message: 'Inventory updated successfully' };
   }
 

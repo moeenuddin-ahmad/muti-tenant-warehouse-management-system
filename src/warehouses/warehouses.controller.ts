@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { WarehousesService } from './warehouses.service';
@@ -16,6 +17,7 @@ import { TenantGuard } from 'src/common/guards/tenant.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
+import type { RequestWithUser } from 'src/common/interfaces/request.interface';
 
 @UseGuards(AuthGuard, TenantGuard, RolesGuard)
 @Controller('warehouses')
@@ -24,34 +26,45 @@ export class WarehousesController {
 
   @Post()
   @Roles([Role.Admin, Role.Manager])
-  create(@Body() createWarehouseDto: CreateWarehouseDto) {
-    return this.warehousesService.create(createWarehouseDto);
+  create(
+    @Req() req: RequestWithUser,
+    @Body() createWarehouseDto: CreateWarehouseDto,
+  ) {
+    return this.warehousesService.create(
+      req.user.tenant_id,
+      createWarehouseDto,
+    );
   }
 
   @Get()
   @Roles([Role.Admin, Role.Manager, Role.Staff])
-  findAll(@Query('tenant_id') tenant_id: string, @Query() query: any) {
-    return this.warehousesService.findAll(+tenant_id, query);
+  findAll(@Req() req: RequestWithUser, @Query() query: any) {
+    return this.warehousesService.findAll(req.user.tenant_id, query);
   }
 
   @Get(':id')
   @Roles([Role.Admin, Role.Manager, Role.Staff])
-  findOne(@Param('id') id: string) {
-    return this.warehousesService.findOne(+id);
+  findOne(@Req() req: RequestWithUser, @Param('id') id: string) {
+    return this.warehousesService.findOne(req.user.tenant_id, +id);
   }
 
   @Patch(':id')
   @Roles([Role.Admin, Role.Manager])
   update(
+    @Req() req: RequestWithUser,
     @Param('id') id: string,
     @Body() updateWarehouseDto: UpdateWarehouseDto,
   ) {
-    return this.warehousesService.update(+id, updateWarehouseDto);
+    return this.warehousesService.update(
+      req.user.tenant_id,
+      +id,
+      updateWarehouseDto,
+    );
   }
 
   @Delete(':id')
   @Roles([Role.Admin])
-  remove(@Param('id') id: string) {
-    return this.warehousesService.remove(+id);
+  remove(@Req() req: RequestWithUser, @Param('id') id: string) {
+    return this.warehousesService.remove(req.user.tenant_id, +id);
   }
 }
