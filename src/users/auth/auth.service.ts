@@ -20,8 +20,26 @@ export class AuthService {
   ) {}
 
   async register(registrationDto: RegistrationDto) {
-    const { tenantId, name, email, phone, status, password, role } =
-      registrationDto;
+    const {
+      tenantId,
+      name,
+      email,
+      phone,
+      status,
+      password,
+      role = 'staff',
+    } = registrationDto;
+
+    // 1. Check if any user exists for this tenant
+    const countQuery = `SELECT COUNT(*) FROM users WHERE tenant_id = $1`;
+    const result = await this.databaseService.query(countQuery, [tenantId]);
+    const userExists = parseInt(result.rows[0].count) > 0;
+
+    let finalRole = role;
+    if (!userExists) {
+      finalRole = 'admin';
+    }
+
     const hashedPassword = await this.bcryptService.hashPassword(password);
 
     const query = `
@@ -37,7 +55,7 @@ export class AuthService {
       phone,
       status || 'active',
       hashedPassword,
-      role,
+      finalRole,
     ]);
 
     return {

@@ -25,6 +25,10 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
   @Length(11, 11, { message: 'Phone must be exactly 11 characters' })
   phone: string;
 
@@ -33,8 +37,8 @@ export class CreateUserDto {
   status: UserStatus = UserStatus.active;
 
   @IsString()
-  @IsNotEmpty()
-  role: string;
+  @IsOptional()
+  role: string = 'staff';
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
